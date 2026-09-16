@@ -1,0 +1,1 @@
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS discount_code text;

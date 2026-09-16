@@ -1,0 +1,11 @@
+ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_purpose_check;
+ALTER TABLE public.payments ADD CONSTRAINT payments_purpose_check CHECK (purpose = ANY (ARRAY['registration','certification','membership','retake-mcq','retake-practical']));
+ALTER TABLE public.payments DROP CONSTRAINT IF EXISTS payments_status_check;
+ALTER TABLE public.payments ADD CONSTRAINT payments_status_check CHECK (status = ANY (ARRAY['pending','paid','success','failed','refunded']));
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS gateway text NOT NULL DEFAULT 'razorpay';
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS order_id text;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS payment_id text;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS plan_code text;
+CREATE UNIQUE INDEX IF NOT EXISTS payments_order_id_key ON public.payments(order_id) WHERE order_id IS NOT NULL;
+GRANT SELECT, INSERT, UPDATE ON public.payments TO authenticated;
+GRANT ALL ON public.payments TO service_role;
