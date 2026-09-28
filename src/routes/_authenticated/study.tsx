@@ -8,6 +8,14 @@ import { useSession } from "@/hooks/use-auth";
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { BookPurchaseDialog } from "@/components/book-purchase-dialog";
+import {
+  AddReadingBookButton,
+  ReadingBookCards,
+  readingBookSlug,
+  useIsSuperadmin,
+  useReadingBooks,
+  type ReadingBook,
+} from "@/components/reading-books";
 
 const PdfReader = lazy(() => import("@/components/pdf-reader"));
 
@@ -24,24 +32,12 @@ function resolveReadUrl(title: string, url: string) {
   return local ?? url;
 }
 
-/** Extra guild books that live only as local files (not in the database
- * yet). Rendered alongside the DB-backed compulsory reading list, all under
- * one "Compulsory Readings" heading. */
-const LOCAL_EXTRA_BOOKS = [
-  {
-    id: "local-ibg-cfb-guide",
-    title: "IBG CFB Guide",
-    description: "The guild's core certification guide — 148 pages, examinable for the CPB® written paper.",
-    url: "/books/" + encodeURIComponent("IBG CFB Guide (1).pdf"),
-  },
-];
-
 /** True only for documents we actually serve locally (a resolved /public
  * path). We deliberately do NOT treat every ibg.network URL as in-app
  * readable — most of those are HTML landing pages, not PDFs, and fetching
  * them client-side fails with a CORS error since ibg.network doesn't send
  * Access-Control-Allow-Origin for this domain. Only known local overrides
- * (see LOCAL_BOOK_OVERRIDES / LOCAL_EXTRA_BOOKS) open in-app; everything
+ * (see LOCAL_BOOK_OVERRIDES) open in-app; everything
  * else opens externally as before. */
 function isInAppReadable(url: string) {
   return url.startsWith("/");
@@ -112,6 +108,8 @@ function StudyPage() {
   });
 
   const compulsory = (data?.links ?? []).filter((l) => l.category === "compulsory");
+  const { data: compulsoryBooks } = useReadingBooks("compulsory");
+  const isSuperadmin = useIsSuperadmin();
 
   const allVideos = data?.videos ?? [];
   const videosByModule = allVideos.reduce<Record<string, typeof allVideos>>(
@@ -123,7 +121,16 @@ function StudyPage() {
   );
 
   const hasCompulsoryReadings =
-    LOCAL_EXTRA_BOOKS.length > 0 || (data?.materials.length ?? 0) > 0 || compulsory.length > 0;
+    isSuperadmin ||
+    (compulsoryBooks ?? []).length > 0 ||
+    (data?.materials.length ?? 0) > 0 ||
+    compulsory.length > 0;
+
+  function readBook(book: ReadingBook) {
+    if (!book.file_url) return;
+    setOpen({ slug: readingBookSlug(book), title: book.title, url: book.file_url });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
     <AppShell>
@@ -154,24 +161,15 @@ function StudyPage() {
 
       {hasCompulsoryReadings && (
         <section>
-          <SectionHeading title="Compulsory Readings" note="Examinable for the CPB® written paper." />
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <SectionHeading
+              title="Compulsory Readings"
+              note="Examinable for the CPB® written paper."
+            />
+            <AddReadingBookButton section="compulsory" />
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
-            {LOCAL_EXTRA_BOOKS.map((b) => (
-              <div key={b.id} className="rounded-md border border-border bg-card/60 p-6">
-                <FileText className="h-5 w-5 text-primary" />
-                <h3 className="mt-3 text-xl">{b.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {b.description}
-                </p>
-                <Button
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setOpen({ slug: b.id, title: b.title, url: b.url })}
-                >
-                  Read
-                </Button>
-              </div>
-            ))}
+            <ReadingBookCards books={compulsoryBooks ?? []} onRead={readBook} />
 
             {(data?.materials ?? []).map((m) => (
               <div key={m.id} className="rounded-md border border-border bg-card/60 p-6">

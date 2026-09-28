@@ -169,6 +169,14 @@ export const verifyPaymentOrder = createServerFn({ method: "POST" })
       .eq("id", payment.id);
     if (updateError) throw updateError;
 
+    if (payment.purpose === "store-purchase") {
+      const { error: storeError } = await supabaseAdmin
+        .from("store_orders")
+        .update({ status: "paid" })
+        .eq("payment_id", payment.id);
+      if (storeError) throw storeError;
+    }
+
     // Membership fee auto-issues the membership card.
     if (payment.purpose === "membership") {
       const { data: existing } = await supabaseAdmin

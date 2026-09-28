@@ -2,68 +2,21 @@ import { lazy, Suspense, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ClientOnly } from "@tanstack/react-router";
-import { BookOpen, ExternalLink, FileText, Library as LibraryIcon } from "lucide-react";
+import { ExternalLink, FileText, Library as LibraryIcon } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-auth";
 import { AppShell, PageHeading } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
+import {
+  AddReadingBookButton,
+  ReadingBookCards,
+  readingBookSlug,
+  useReadingBooks,
+  type ReadingBook,
+} from "@/components/reading-books";
 
 const PdfReader = lazy(() => import("@/components/pdf-reader"));
-
-/** Core study texts, served directly from /public/books — no Supabase
- * Storage bucket involved, so there's no per-file size ceiling to worry
- * about. Add a new book here any time a new PDF lands in that folder. */
-const LOCAL_CORE_BOOKS = [
-  {
-    slug: "cwi-magazine",
-    title: "CWI Magazine",
-    description: "Guild magazine covering the Cocktail World Invitational.",
-    file: "CWI Magazine.pdf",
-  },
-  {
-    slug: "iba-social-responsibility-guide",
-    title: "IBA Social Responsibility Guide",
-    description: "IBA guidance on responsible service and social responsibility standards.",
-    file: "IBA SOCIAL RESPONSIBILITY GUIDE.pdf",
-  },
-  {
-    slug: "ibg-cfb-guide",
-    title: "IBG CFB Guide",
-    description: "The guild's core certification guide — examinable for the CPB® written paper.",
-    file: "IBG CFB Guide (1).pdf",
-  },
-  {
-    slug: "ibg-ultimate-cocktail-book",
-    title: "IBG Ultimate Cocktail Book",
-    description: "The guild's flagship cocktail reference, cover to cover.",
-    file: "IBG-Ultimate-Bartender-Book-31-MAY-1.pdf",
-  },
-  {
-    slug: "icb-students-guide",
-    title: "ICB Students Guide",
-    description: "Student reference guide for ICB coursework.",
-    file: "ICB STUDENTS GUIDE.pdf",
-  },
-  {
-    slug: "indias-fb-on-ventilator",
-    title: "India's F&B on Ventilator",
-    description: "Dark secrets of the Indian hospitality industry and strategies for driving profitable success.",
-    file: "Indias-FB-on-Ventilator.pdf",
-  },
-  {
-    slug: "updated-cwi-2026",
-    title: "CWI 2026 (Updated)",
-    description: "Updated rules and reference material for CWI 2026.",
-    file: "Updated-CWI-2026.pdf",
-  },
-  {
-    slug: "wcc2025-classic-category-rules",
-    title: "WCC 2025 — Classic Category Rules",
-    description: "Competition rules for the WCC 2025 Classic Category.",
-    file: "WCC2025 - CLASSIC CATEGORY - RULES.pdf",
-  },
-] as const;
 
 export const Route = createFileRoute("/_authenticated/library")({
   head: () => ({
@@ -99,12 +52,11 @@ function LibraryPage() {
     },
   });
 
-  function readLocal(book: (typeof LOCAL_CORE_BOOKS)[number]) {
-    setOpen({
-      slug: book.slug,
-      title: book.title,
-      url: "/books/" + encodeURIComponent(book.file),
-    });
+  const { data: optionalBooks, isLoading: booksLoading } = useReadingBooks("optional");
+
+  function readBook(book: ReadingBook) {
+    if (!book.file_url) return;
+    setOpen({ slug: readingBookSlug(book), title: book.title, url: book.file_url });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -139,26 +91,17 @@ function LibraryPage() {
       )}
 
       <section>
-        <h2 className="text-2xl">Optional Reading </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          
-        </p>
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {LOCAL_CORE_BOOKS.map((book) => (
-            <article key={book.slug} className="flex flex-col rounded-md border border-border bg-card/60 p-6">
-              <BookOpen className="h-5 w-5 text-primary" />
-              <h3 className="mt-3 text-xl leading-tight">{book.title}</h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {book.description}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Button size="sm" onClick={() => readLocal(book)}>
-                  Read
-                </Button>
-              </div>
-            </article>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl">Optional Reading</h2>
+          <AddReadingBookButton section="optional" />
         </div>
+        {!booksLoading && (optionalBooks ?? []).length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No books in this section yet.</p>
+        ) : (
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <ReadingBookCards books={optionalBooks ?? []} onRead={readBook} />
+          </div>
+        )}
       </section>
 
       {reading.length > 0 && (

@@ -1121,6 +1121,48 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_books: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_path: string | null
+          file_url: string | null
+          id: string
+          section: string
+          slug: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          section: string
+          slug?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          file_url?: string | null
+          id?: string
+          section?: string
+          slug?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reading_progress: {
         Row: {
           book_slug: string
@@ -1353,6 +1395,126 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      store_orders: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          created_at: string
+          id: string
+          payment_id: string
+          phone: string
+          pincode: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          recipient_name: string
+          state: string
+          status: string
+          total_inr: number
+          unit_price_inr: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          created_at?: string
+          id?: string
+          payment_id: string
+          phone: string
+          pincode: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          recipient_name: string
+          state: string
+          status?: string
+          total_inr: number
+          unit_price_inr: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          created_at?: string
+          id?: string
+          payment_id?: string
+          phone?: string
+          pincode?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          recipient_name?: string
+          state?: string
+          status?: string
+          total_inr?: number
+          unit_price_inr?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_orders_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_products: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_path: string | null
+          image_url: string
+          is_active: boolean
+          name: string
+          price_inr: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          image_url: string
+          is_active?: boolean
+          name: string
+          price_inr: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          price_inr?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       training_videos: {
         Row: {

@@ -25,6 +25,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as StoreRouteImport } from './routes/store'
 import { Route as StudyMaterialRouteImport } from './routes/study-material'
 import { Route as ValuesRouteImport } from './routes/values'
 import { Route as VerifyRouteImport } from './routes/verify'
@@ -119,6 +120,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreRoute = StoreRouteImport.update({
+  id: '/store',
+  path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudyMaterialRoute = StudyMaterialRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/report': typeof ReportRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
+  '/store': typeof StoreRoute
   '/study-material': typeof StudyMaterialRoute
   '/values': typeof ValuesRoute
   '/verify': typeof VerifyRoute
@@ -252,6 +259,7 @@ export interface FileRoutesByTo {
   '/report': typeof ReportRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
+  '/store': typeof StoreRoute
   '/study-material': typeof StudyMaterialRoute
   '/values': typeof ValuesRoute
   '/verify': typeof VerifyRoute
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   '/report': typeof ReportRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
+  '/store': typeof StoreRoute
   '/study-material': typeof StudyMaterialRoute
   '/values': typeof ValuesRoute
   '/verify': typeof VerifyRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/reset-password'
     | '/resources'
+    | '/store'
     | '/study-material'
     | '/values'
     | '/verify'
@@ -355,6 +365,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/reset-password'
     | '/resources'
+    | '/store'
     | '/study-material'
     | '/values'
     | '/verify'
@@ -389,6 +400,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/reset-password'
     | '/resources'
+    | '/store'
     | '/study-material'
     | '/values'
     | '/verify'
@@ -424,6 +436,7 @@ export interface RootRouteChildren {
   ReportRoute: typeof ReportRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
+  StoreRoute: typeof StoreRoute
   StudyMaterialRoute: typeof StudyMaterialRoute
   ValuesRoute: typeof ValuesRoute
   VerifyRoute: typeof VerifyRoute
@@ -543,6 +556,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store': {
+      id: '/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/study-material': {
@@ -708,6 +728,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportRoute: ReportRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
+  StoreRoute: StoreRoute,
   StudyMaterialRoute: StudyMaterialRoute,
   ValuesRoute: ValuesRoute,
   VerifyRoute: VerifyRoute,

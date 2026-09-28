@@ -122,6 +122,9 @@ export function SiteHeader() {
           <Link to="/verify" className={navLinkClass(pathname, "/verify")}>
             Verify
           </Link>
+          <Link to="/store" className={navLinkClass(pathname, "/store")}>
+            Store
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 sm:flex">
@@ -256,6 +259,15 @@ export function SiteHeader() {
                     className={mobileNavLinkClass(pathname, "/verify")}
                   >
                     Verify
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    to="/store"
+                    style={{ animationDelay: "220ms" }}
+                    className={mobileNavLinkClass(pathname, "/store")}
+                  >
+                    Store
                   </Link>
                 </SheetClose>
               </nav>
